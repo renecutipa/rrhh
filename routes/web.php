@@ -46,6 +46,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('getToday', [AttendanceController::class, 'getToday'])->name('getToday');
     Route::get('at', [AttendanceController::class, 'at'])->name('at');
 
+    Route::get('noAttendance', [AttendanceController::class, 'noAttendance'])->name('noAttendance');
+    Route::get('getNoAttendanceToday', [AttendanceController::class, 'getNoAttendanceToday'])->name('getNoAttendanceToday');
+
     Route::get('month', [AttendanceController::class, 'month'])->name('month');
     Route::get('getMonth', [AttendanceController::class, 'getMonth'])->name('getMonth');
 

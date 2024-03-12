@@ -88,6 +88,7 @@
                         <a class="collapse-item" href="{{route('today')}}">Asistencia diaria</a>
                         <a class="collapse-item" href="{{route('month')}}">Asistencia mensual</a>
                         <a class="collapse-item" href="{{route('month2')}}">Reporte mensual</a>
+                        <a class="collapse-item" href="{{route('noAttendance')}}">Sin Asistencia HOY</a>
                     </div>
                 </div>    
             </li>

@@ -76,7 +76,10 @@ class AttendanceController extends Controller
             $log = $log."LOG: CONECTANDO PALACIO 01.<br/>";
             $zk->disableDevice();  
             $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
+            $data = 0;
+            foreach (array_chunk($attendances,1000) as $a){
+                $data += DB::table('attendances')->insertOrIgnore($a);
+            }
             $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
         }else{
             $log = $log."LOG: -- No se pudo conectar a PALACIO 01.<br/>";
@@ -88,7 +91,10 @@ class AttendanceController extends Controller
             $log = $log."LOG: -- CONECTANDO PALACIO 02.<br/>";
             $zk->disableDevice();  
             $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
+            $data = 0;
+            foreach (array_chunk($attendances,1000) as $a){
+                $data += DB::table('attendances')->insertOrIgnore($a);
+            }
             $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
         }else{
             $log = $log."LOG: -- No se pudo conectar a PALACIO 02.<br/>";
@@ -204,6 +210,25 @@ class AttendanceController extends Controller
             FROM employees AS e
             LEFT JOIN attendances AS a ON (CAST(e.dni AS UNSIGNED) = CAST(a.id AS UNSIGNED) AND DATE(a.TIMESTAMP) = DATE(CURTIME()))
             GROUP BY e.dni, e.plastname, e.mlastname, e.name');
+
+        return Datatables::of($data)->make(true);
+    }
+
+    public function noAttendance(){
+        return view('reports.noAttendanceToday');
+    }
+
+    public function getNoAttendanceToday(Request $request)
+    {
+        $data = DB::select('SELECT 
+                e.dni,
+                e.regimen,
+                CONCAT(e.plastname," ",e.mlastname,", ",e.name) NAME, 
+                GROUP_CONCAT(TIME(a.TIMESTAMP) SEPARATOR ", ") marcas 
+            FROM employees AS e
+            LEFT JOIN attendances AS a ON (CAST(e.dni AS UNSIGNED) = CAST(a.id AS UNSIGNED) AND DATE(a.TIMESTAMP) = DATE(CURTIME()))
+            GROUP BY e.dni, e.plastname, e.mlastname, e.name, e.regimen
+            HAVING COUNT(a.timestamp) = 0');
 
         return Datatables::of($data)->make(true);
     }
