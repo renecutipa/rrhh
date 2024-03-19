@@ -331,9 +331,9 @@ class ZKTeco{
    *
    * @return array [uid, id, state, timestamp]
    */
-  public function getAttendance()
+  public function getAttendance($relojID)
   {
-    return Attendance::get($this);
+    return Attendance::get($this, $relojID);
   }
 
   /**

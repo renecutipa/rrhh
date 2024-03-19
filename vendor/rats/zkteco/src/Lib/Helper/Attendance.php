@@ -10,7 +10,7 @@ class Attendance
      * @param ZKTeco $self
      * @return array [uid, id, state, timestamp]
      */
-    static public function get(ZKTeco $self)
+    static public function get(ZKTeco $self, $relojID)
     {
         $self->_section = __METHOD__;
 
@@ -45,7 +45,8 @@ class Attendance
                     'id' => $id,
                     'state' => $state,
                     'timestamp' => $timestamp,
-                    'type' => $type
+                    'type' => $type,
+                    'reloj' => $relojID
                 ];
 
                 $attData = substr($attData, 40);

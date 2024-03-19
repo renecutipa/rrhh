@@ -70,34 +70,35 @@ class AttendanceController extends Controller
 
     public function at(){
         
-        $zk = new ZKTeco('172.100.0.22',4370);
+        $zk = new ZKTeco('172.100.0.201',4370);
         $log = "<br/>";
         if($zk->connect()){
-            $log = $log."LOG: CONECTANDO PALACIO 01.<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
+            $log = $log."LOG: CONECTANDO PALACIO01.<br/>";
+            $zk->disableDevice();
+            $attendances = $zk->getAttendance('P01');
+            //var_dump($attendances); exit;
             $data = 0;
             foreach (array_chunk($attendances,1000) as $a){
                 $data += DB::table('attendances')->insertOrIgnore($a);
             }
             $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
         }else{
-            $log = $log."LOG: -- No se pudo conectar a PALACIO 01.<br/>";
+            $log = $log."LOG: No se pudo conectar a PALACIO01.<br/>";
         }
        
 
-        $zk = new ZKTeco('172.100.0.29',4370);
+        $zk = new ZKTeco('192.77.77.208',4370);
         if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO PALACIO 02.<br/>";
+            $log = $log."LOG: CONECTANDO PALACIO02.<br/>";
             $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
+            $attendances = $zk->getAttendance('P02');
             $data = 0;
             foreach (array_chunk($attendances,1000) as $a){
                 $data += DB::table('attendances')->insertOrIgnore($a);
             }
             $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
         }else{
-            $log = $log."LOG: -- No se pudo conectar a PALACIO 02.<br/>";
+            $log = $log."LOG: No se pudo conectar a PALACIO02.<br/>";
         }
 
         /*
