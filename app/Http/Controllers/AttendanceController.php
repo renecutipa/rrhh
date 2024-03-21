@@ -70,7 +70,7 @@ class AttendanceController extends Controller
 
     public function at(){
         
-        $zk = new ZKTeco('172.100.0.201',4370);
+        $zk = new ZKTeco('172.100.0.210',4370);
         $log = "<br/>";
         if($zk->connect()){
             $log = $log."LOG: CONECTANDO PALACIO01.<br/>";
@@ -82,6 +82,8 @@ class AttendanceController extends Controller
                 $data += DB::table('attendances')->insertOrIgnore($a);
             }
             $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
+            $zk->clearAttendance(); 
+            $zk->enableDevice();
         }else{
             $log = $log."LOG: No se pudo conectar a PALACIO01.<br/>";
         }
@@ -97,8 +99,26 @@ class AttendanceController extends Controller
                 $data += DB::table('attendances')->insertOrIgnore($a);
             }
             $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
+            $zk->clearAttendance(); 
+            $zk->enableDevice();
         }else{
             $log = $log."LOG: No se pudo conectar a PALACIO02.<br/>";
+        }
+
+        $zk = new ZKTeco('192.77.77.201',4370);
+        if($zk->connect()){
+            $log = $log."LOG: CONECTANDO ESC.<br/>";
+            $zk->disableDevice();  
+            $attendances = $zk->getAttendance('ESC');
+            $data = 0;
+            foreach (array_chunk($attendances,1000) as $a){
+                $data += DB::table('attendances')->insertOrIgnore($a);
+            }
+            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
+            $zk->clearAttendance(); 
+            $zk->enableDevice();
+        }else{
+            $log = $log."LOG: No se pudo conectar a ESC.<br/>";
         }
 
         /*
