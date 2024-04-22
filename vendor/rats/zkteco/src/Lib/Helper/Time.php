@@ -13,7 +13,7 @@ class Time
      */
     static public function set(ZKTeco $self, $t)
     {
-      die($t);
+        //die($t);
         $self->_section = __METHOD__;
 
         $command = Util::CMD_SET_TIME;

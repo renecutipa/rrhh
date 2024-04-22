@@ -31,7 +31,18 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        request()->validate([
+            'dni' => 'required',
+            'plastname' => 'required',
+            'mlastname' => 'required',
+            'name' => 'required',
+            'position' => 'required',
+            'regimen' => 'required',
+        ]);
+    
+        $e = Employee::create($request->all());
+    
+        return json_encode($e);
     }
 
     /**
@@ -71,5 +82,10 @@ class EmployeeController extends Controller
         $data = DB::select('SELECT * FROM employees');        
 
         return Datatables::of($data)->make(true);
+    }
+
+    public function buscarEmpleado(Request $request){
+        $empleado = Employee::where('dni',$request->dni)->first();
+        return json_encode($empleado);
     }
 }

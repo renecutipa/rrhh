@@ -32,7 +32,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{route('at')}}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-users"></i>
                 </div>
@@ -45,7 +45,7 @@
             <!-- Nav Item - Dashboard -->
             @hasanyrole('Admin|Nivel 1|Nivel 2')
             <li class="nav-item">
-                <a class="nav-link" href="{{route('at')}}">
+                <a class="nav-link" href="{{route('biometricos.index')}}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Biométricos</span></a>
             </li>
@@ -63,11 +63,11 @@
                 Asistencia
             </div>
             @hasanyrole('Admin|Nivel 1|Nivel 2')
-            <li class="nav-item">
+            <!--li class="nav-item">
                 <a class="nav-link" href="{{route('at')}}">
                     <i class="fas fa-fw fa-briefcase"></i>
                     <span>Oficinas</span></a>
-            </li>
+            </li-->
             @endhasanyrole
             @hasanyrole('Admin|Nivel 1|Nivel 2')
             <li class="nav-item">
@@ -75,7 +75,23 @@
                     <i class="fas fa-fw fa-calendar"></i>
                     <span>Horarios</span></a>
             </li>
-            @endhasanyrole                
+            @endhasanyrole
+
+            @hasanyrole('Admin|Nivel 1|Nivel 2')
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#operacionesAsistencia" aria-expanded="true" aria-controls="operacionesAsistencia">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Operaciones</span>
+                </a>
+                <div id="operacionesAsistencia" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar" style="">
+                    <div class="bg-light py-2 collapse-inner rounded text-white">
+                        <a class="collapse-item" href="{{route('justificaciones.index')}}">Justificaciones</a>
+                        <a class="collapse-item" href="{{route('vacaciones.index')}}">Vacaciones</a>
+                    </div>
+                </div>    
+            </li>
+            @endhasanyrole
+
             @hasanyrole('Admin|Nivel 1|Nivel 2')
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#reporteProductos" aria-expanded="true" aria-controls="reporteProductos">
@@ -160,7 +176,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Municipalidad Provincial de La Convención</span>
+                        <span>Oficina de Tecnologías de la Información y Comunicaciones - <strong>Municipalidad Provincial de La Convención<strong></span>
                     </div>
                 </div>
             </footer>

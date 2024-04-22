@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 use Rats\Zkteco\Lib\ZKTeco;
 use Yajra\Datatables\Datatables;
 
+use App\Models\Employee;
+use App\Models\Justificacion;
+use App\Models\Schedule;
+
+use DateTime;
+use DateTimeZone;
+use DateInterval;
+
+
 use DB;
 
 class AttendanceController extends Controller
@@ -67,141 +76,94 @@ class AttendanceController extends Controller
     {
         //
     }
+    
+    public static function insertJustificacion(Justificacion $jus){
+        $horario = Schedule::find(1);
+        $empleado = Employee::find($jus->id_employee);
 
-    public function at(){
+        $he = new DateTime($jus->fecha." ".$horario->entry_time);
+        $hs = new DateTime($jus->fecha." ".$horario->exit_time);
+
+        $hba = new DateTime($jus->fecha." ".$horario->break_out);
+        $hbb = new DateTime($jus->fecha." ".$horario->break_return);
+
+        $ji = new DateTime($jus->fecha." ".$jus->hora_inicio);
+        $jf = new DateTime($jus->fecha." ".$jus->hora_final);
+
         
-        $zk = new ZKTeco('172.100.0.210',4370);
-        $log = "<br/>";
-        if($zk->connect()){
-            $log = $log."LOG: CONECTANDO PALACIO01.<br/>";
-            $zk->disableDevice();
-            $attendances = $zk->getAttendance('P01');
-            //var_dump($attendances); exit;
-            $data = 0;
-            foreach (array_chunk($attendances,1000) as $a){
-                $data += DB::table('attendances')->insertOrIgnore($a);
-            }
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-            $zk->clearAttendance(); 
-            $zk->enableDevice();
-        }else{
-            $log = $log."LOG: No se pudo conectar a PALACIO01.<br/>";
-        }
-       
-
-        $zk = new ZKTeco('192.77.77.208',4370);
-        if($zk->connect()){
-            $log = $log."LOG: CONECTANDO PALACIO02.<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance('P02');
-            $data = 0;
-            foreach (array_chunk($attendances,1000) as $a){
-                $data += DB::table('attendances')->insertOrIgnore($a);
-            }
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-            $zk->clearAttendance(); 
-            $zk->enableDevice();
-        }else{
-            $log = $log."LOG: No se pudo conectar a PALACIO02.<br/>";
+        if($ji <= $he){
+            $t3 = Attendance::firstOrCreate(
+                ['id' => intval($empleado->dni),
+                'state' => '55', // 55 JUSTIFICACION
+                'timestamp' => $jus->fecha.' '.$horario->entry_time,
+                'type' => $jus->id,
+                'reloj' => 'JUSTIFICAC']);
         }
 
-        $zk = new ZKTeco('192.77.77.201',4370);
-        if($zk->connect()){
-            $log = $log."LOG: CONECTANDO ESC.<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance('ESC');
-            $data = 0;
-            foreach (array_chunk($attendances,1000) as $a){
-                $data += DB::table('attendances')->insertOrIgnore($a);
-            }
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-            $zk->clearAttendance(); 
-            $zk->enableDevice();
-        }else{
-            $log = $log."LOG: No se pudo conectar a ESC.<br/>";
+        if($jf >= $hs){
+            $t4 = Attendance::firstOrCreate(
+                ['id' => intval($empleado->dni),
+                'state' => '55', // 55 JUSTIFICACION
+                'timestamp' => $jus->fecha.' '.$horario->exit_time,
+                'type' => $jus->id,
+                'reloj' => 'JUSTIFICAC']);
         }
 
-        /*
-        $zk = new ZKTeco('192.77.77.201',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO COLISEO MUNICIPAL--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a COLISEO MUNICIPAL--<br/>";
+        // 8.25 8.00 / 8.25 13:00 / 17:30 17:30 / 17.30 14:30
+
+        if($ji > $he && $ji < $hba && $jf <= $hs && $jf > $hbb){
+            $t1 = Attendance::firstOrCreate(
+                ['id' => intval($empleado->dni),
+                'state' => '55', // 55 JUSTIFICACION
+                'timestamp' => $jus->fecha.' '.$horario->break_out,
+                'type' => $jus->id,
+                'reloj' => 'JUSTIFICAC']);
+            
+            $t2 = Attendance::firstOrCreate(
+                ['id' => intval($empleado->dni),
+                'state' => '55', // 55 JUSTIFICACION
+                'timestamp' => $jus->fecha.' '.$horario->break_return,
+                'type' => $jus->id,
+                'reloj' => 'JUSTIFICAC']);
         }
 
-        $zk = new ZKTeco('192.77.77.202',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO MERCADO MODELO--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a MERCADO MODELO--<br/>";
-        }
-
-        $zk = new ZKTeco('172.100.0.20',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO FABRICA DE TUBOS--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a FABRICA DE TUBOS--<br/>";
-        }
-
-        $zk = new ZKTeco('192.77.77.203',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO TEATRO MUNICIPAL--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a TEATRO MUNICIPAL--<br/>";
-        }
-
-        $zk = new ZKTeco('192.77.77.207',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO TERMINAL PAVAYOC--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a TERMINAL PAVAYOC--<br/>";
-        }
-
-        $zk = new ZKTeco('172.100.0.19',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO SERENAZGO--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a SERENAZGO--<br/>";
-        }
-
-        $zk = new ZKTeco('192.77.77.204',4370);
-        if($zk->connect()){
-            $log = $log."LOG: -- CONECTANDO ESCALAFON--<br/>";
-            $zk->disableDevice();  
-            $attendances = $zk->getAttendance();
-            $data = DB::table('attendances')->insertOrIgnore($attendances);
-            $log = $log."LOG: Se insertaron: ".$data." registros.<br/>";
-        }else{
-            $log = $log."LOG: -- No se pudo conectar a ESCALAFON--<br/>";
-        }*/
-
-        return view('at')->with('log', $log);
     }
 
+    public static function insertVacaciones($id_empleado, $fecha_inicio, $fecha_final, $idVacacion){
+        $empleado = Employee::find($id_empleado);
+
+        for($fi = new DateTime($fecha_inicio); $fi <= new DateTime($fecha_final); $fi->add(new DateInterval('P1D'))){
+            
+            $ha = Attendance::create(
+                ['id' => intval($empleado->dni),
+                'state' => '33', // 33 VACACION
+                'timestamp' => $fi->format('Y-m-d').' 08:00:00',
+                'type' => $idVacacion,
+                'reloj' => 'VACACIONES']);
+            
+            $hb = Attendance::create(
+                ['id' => intval($empleado->dni),
+                'state' => '33', // 33 VACACION
+                'timestamp' => $fi->format('Y-m-d').' 13:00:00',
+                'type' => $idVacacion,
+                'reloj' => 'VACACIONES']);
+            
+            $hc = Attendance::create(
+                ['id' => intval($empleado->dni),
+                'state' => '33', // 33 VACACION
+                'timestamp' => $fi->format('Y-m-d').' 14:30:00',
+                'type' => $idVacacion,
+                'reloj' => 'VACACIONES']);
+            
+            $hd = Attendance::create(
+                ['id' => intval($empleado->dni),
+                'state' => '33', // 33 VACACION
+                'timestamp' => $fi->format('Y-m-d').' 17:30:00',
+                'type' => $idVacacion,
+                'reloj' => 'VACACIONES']);
+        }
+    }
+    
     public function events(){
         return view('reports.events');
     }

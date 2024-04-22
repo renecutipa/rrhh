@@ -5,19 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Attendance extends Model
+class Vacacion extends Model
 {
     use HasFactory;
 
-    protected $table = 'attendances';
+    protected $table='vacaciones';
 
     protected $fillable = [
-        'id',
-        'state',
-        'timestamp',
-        'type',
-        'uid',
-        'reloj'
+        'id_employee',
+        'motivo',
+        'fecha_inicio',
+        'fecha_final'
     ];
-
 }

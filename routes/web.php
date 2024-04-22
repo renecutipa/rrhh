@@ -9,6 +9,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\BiometricoController;
+use App\Http\Controllers\VacacionesController;
+use App\Http\Controllers\JustificacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +25,7 @@ use App\Http\Controllers\ScheduleController;
 */
 
 Route::get('/', function () {
-    return redirect('home');
+    return redirect('employees');
 });
   
 Auth::routes();
@@ -37,6 +40,15 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('attendances', AttendanceController::class);
     Route::resource('employees', EmployeeController::class);
     Route::resource('schedules', ScheduleController::class);
+    Route::resource('biometricos', BiometricoController::class);
+    Route::resource('vacaciones', VacacionesController::class);
+    Route::resource('justificaciones', JustificacionController::class);
+
+    Route::get('getVacaciones', [VacacionesController::class, 'getVacaciones'])->name('getVacaciones');
+    Route::get('getJustificaciones', [JustificacionController::class, 'getJustificaciones'])->name('getJustificaciones');
+
+    Route::get('listBiometricos', [BiometricoController::class, 'listBiometricos'])->name('listBiometricos');
+    Route::get('sincronizar/{idBiometrico}', [BiometricoController::class, 'sincronizar'])->name('sincronizar');
 
     Route::get('getEmployees', [EmployeeController::class, 'listEmployees'])->name('listEmployees');
     Route::get('listSchedules', [ScheduleController::class, 'listSchedules'])->name('listSchedules');
@@ -46,6 +58,11 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('getToday', [AttendanceController::class, 'getToday'])->name('getToday');
     Route::get('at', [AttendanceController::class, 'at'])->name('at');
 
+    Route::get('buscarEmpleado/{dni}', [EmployeeController::class, 'buscarEmpleado'])->name('buscarEmpleado');
+    Route::get('borrarVacaciones/{idVacacion}', [VacacionesController::class, 'borrarVacaciones'])->name('vacaciones.borrar');
+    Route::get('borrarJustificacion/{idJustificacion}', [JustificacionController::class, 'borrarJustificacion'])->name('justificacion.borrar');
+
+
     Route::get('noAttendance', [AttendanceController::class, 'noAttendance'])->name('noAttendance');
     Route::get('getNoAttendanceToday', [AttendanceController::class, 'getNoAttendanceToday'])->name('getNoAttendanceToday');
 
@@ -54,6 +71,7 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('month2', [AttendanceController::class, 'month2'])->name('month2');
     Route::get('getMonth2/{mes?}/{anio?}', [AttendanceController::class, 'getMonth2'])->name('getMonth2');
+
 });
 
 
